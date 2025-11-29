@@ -316,6 +316,8 @@ const resetZoomBtn = document.getElementById("resetZoom");
 let currentIndex = 0;
 let currentGalleryItems = [];
 let zoomLevel = 1;
+let mouseX = 50;
+let mouseY = 50;
 
 document.addEventListener("click", function (e) {
   if (e.target.closest(".gallery-item")) {
@@ -352,6 +354,17 @@ closeLightbox.addEventListener("click", () => {
   document.body.style.overflow = "auto";
   zoomLevel = 1;
   lightboxImg.style.transform = "scale(1)";
+  lightboxImg.style.transformOrigin = "center center";
+});
+
+lightbox.addEventListener('mousemove', (e) => {
+  if (!lightbox.classList.contains('active')) return;
+  
+  const rect = lightboxImg.getBoundingClientRect();
+  mouseX = ((e.clientX - rect.left) / rect.width) * 100;
+  mouseY = ((e.clientY - rect.top) / rect.height) * 100;
+  
+  updateZoomTransform();
 });
 
 prevBtn.addEventListener("click", () => {
@@ -376,21 +389,27 @@ function updateLightboxImage() {
   updateCounter();
   zoomLevel = 1;
   lightboxImg.style.transform = "scale(1)";
+  lightboxImg.style.transformOrigin = "center center"; // Reset to center on image change
+}
+
+function updateZoomTransform() {
+  lightboxImg.style.transformOrigin = `${mouseX}% ${mouseY}%`;
+  lightboxImg.style.transform = `scale(${zoomLevel})`;
 }
 
 zoomInBtn.addEventListener("click", () => {
   zoomLevel = Math.min(zoomLevel + 0.3, 3);
-  lightboxImg.style.transform = `scale(${zoomLevel})`;
+  updateZoomTransform();
 });
 
 zoomOutBtn.addEventListener("click", () => {
   zoomLevel = Math.max(zoomLevel - 0.3, 0.5);
-  lightboxImg.style.transform = `scale(${zoomLevel})`;
+  updateZoomTransform();
 });
 
 resetZoomBtn.addEventListener("click", () => {
   zoomLevel = 1;
-  lightboxImg.style.transform = "scale(1)";
+  updateZoomTransform();
 });
 
 document.addEventListener("keydown", (e) => {
